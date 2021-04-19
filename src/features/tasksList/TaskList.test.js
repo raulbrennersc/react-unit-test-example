@@ -42,7 +42,7 @@ test("add task enabled", () => {
   expect(addBtn.disabled).toBeFalsy();
 });
 
-test("cant add empty task", () => {
+test("cant add an empty task", () => {
   render(<TaskList />);
   const addBtn = screen.getByTestId("add-button");
   userEvent.click(addBtn);
@@ -50,7 +50,7 @@ test("cant add empty task", () => {
   expect(tasks.length).toEqual(0);
 });
 
-test("can add task", () => {
+test("can add a task", () => {
   render(<TaskList />);
   const input = screen.getByTestId("task-input");
   userEvent.type(input, "abcd");
@@ -62,7 +62,7 @@ test("can add task", () => {
   expect(input.value).toEqual("");
 });
 
-test("cant add duplicate task", () => {
+test("cant add a duplicate task", () => {
   render(<TaskList />);
   const input = screen.getByTestId("task-input");
   userEvent.type(input, "abcd");
@@ -114,10 +114,6 @@ test("can clear all tasks", () => {
 
 test("can load tasks", async () => {
   render(<TaskList />);
-  service.getTasks.mockResolvedValue([
-    { title: "task 1", checked: false },
-    { title: "task 2", checked: false },
-  ]);
   // jest.spyOn(service, "getTasks").mockResolvedValue([
   //   { title: "task 1", checked: false },
   //   { title: "task 2", checked: false },
@@ -126,4 +122,39 @@ test("can load tasks", async () => {
   userEvent.click(loadBtn);
   const tasks = await screen.findAllByTestId("task-div");
   expect(tasks.length).toEqual(2);
+});
+
+test("can check a task", () => {
+  render(<TaskList />);
+  const input = screen.getByTestId("task-input");
+  userEvent.type(input, "abcd");
+  const addBtn = screen.getByTestId("add-button");
+  userEvent.click(addBtn);
+  const [checkbox] = screen.getByTestId("task-div").childNodes;
+  userEvent.click(checkbox);
+  expect(checkbox.checked).toBeTruthy();
+});
+
+test("can uncheck a task", () => {
+  render(<TaskList />);
+  const input = screen.getByTestId("task-input");
+  userEvent.type(input, "abcd");
+  const addBtn = screen.getByTestId("add-button");
+  userEvent.click(addBtn);
+  const [checkbox] = screen.getByTestId("task-div").childNodes;
+  userEvent.click(checkbox);
+  userEvent.click(checkbox);
+  expect(checkbox.checked).toBeFalsy();
+});
+
+test("can remove a task", () => {
+  render(<TaskList />);
+  const input = screen.getByTestId("task-input");
+  userEvent.type(input, "abcd");
+  const addBtn = screen.getByTestId("add-button");
+  userEvent.click(addBtn);
+  const [, , removeBtn] = screen.getByTestId("task-div").childNodes;
+  userEvent.click(removeBtn);
+  const tasks = screen.queryAllByTestId("task-div");
+  expect(tasks.length).toEqual(0);
 });
